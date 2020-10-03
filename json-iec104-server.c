@@ -485,6 +485,8 @@ main(int argc, char** argv)
             if (cJSON_IsString(type_json) && (type_json->valuestring != NULL)) {
                 type = GetDataTypeNumber(type_json->valuestring);
                 status_json_parse++;
+            } else {
+                printf("{\"error\":\"invalid data type\"}\n");
             }
 
             //parse value
@@ -492,6 +494,8 @@ main(int argc, char** argv)
             if (cJSON_IsNumber(value_json)) {
                 value = value_json->valuedouble;
                 status_json_parse++;
+            } else {
+                printf("{\"error\":\"invalid data value\"}\n");
             }
 
             //parse address
@@ -499,6 +503,8 @@ main(int argc, char** argv)
             if (cJSON_IsNumber(address_json)) {
                 address = (int)(address_json->valuedouble);
                 status_json_parse++;
+            } else {
+                printf("{\"error\":\"invalid data address\"}\n");
             }
 
             //parse qualifier
@@ -506,6 +512,8 @@ main(int argc, char** argv)
             if (cJSON_IsString(qualifier_json) && (qualifier_json->valuestring != NULL)) {
                 qualifier = GetQualifierNumber(qualifier_json->valuestring);
                 status_json_parse++;                
+            } else {
+                printf("{\"error\":\"invalid data qualifier\"}\n");
             }
         } else {
             printf("{\"error\":\"invalid json\"}\n");
@@ -594,6 +602,8 @@ main(int argc, char** argv)
                 default:
                     break;
             }
+        } else {
+            printf("{\"error\":\"json incomplete\"}\n");
         }
         memset(input, 0, sizeof(input));
         status_json_parse = 0;
