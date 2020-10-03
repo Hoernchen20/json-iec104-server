@@ -12,12 +12,11 @@
 #include "hal_thread.h"
 #include "hal_time.h"
 
-#include "cJSON.h"
+#include "cJSON/cJSON.h"
 
 #define ASDU 193
 #define IP_ADDRESS_FER_1 "10.1.21.154"
 #define IP_ADDRESS_FER_2 "172.16.3.12"
-//#define IP_ADDRESS_FER_ALL //Temporär zum testen, es werden alle IP Adressen akzeptiert
 
 #define BASE_ADDRESS_M_SP_TB_1 4097
 #define BASE_ADDRESS_M_DP_TB_1 6144
@@ -495,7 +494,7 @@ main(int argc, char** argv)
                 status_json_parse++;
             }
 
-            //parse value
+            //parse address
             cJSON *address_json = cJSON_GetObjectItemCaseSensitive(json, "address");
             if (cJSON_IsNumber(address_json)) {
                 address = (int)(address_json->valuedouble);
