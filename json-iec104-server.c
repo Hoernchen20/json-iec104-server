@@ -602,6 +602,11 @@ main(int argc, char** argv)
                 default:
                     break;
             }
+        } else if(status_json_parse == 2) {
+            if(type == 0 && value == 0) {
+                running = false;
+                printf("{\"info\":\"shutdown server\"}\n");
+            }
         } else {
             printf("{\"error\":\"json incomplete\"}\n");
         }
