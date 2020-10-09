@@ -15,8 +15,9 @@
 #include "cJSON/cJSON.h"
 
 #define ASDU 193
+#define IP_ADDRESS_LOCAL "10.1.20.15"
 #define IP_ADDRESS_FER_1 "10.1.21.154"
-#define IP_ADDRESS_FER_2 "172.16.3.12"
+#define IP_ADDRESS_FER_2 "10.1.21.151"
 
 #define BASE_ADDRESS_M_SP_TB_1 4097
 #define BASE_ADDRESS_M_DP_TB_1 6144
@@ -412,7 +413,7 @@ main(int argc, char** argv)
      * default message queue size */
     CS104_Slave slave = CS104_Slave_create(100, 100);
 
-    CS104_Slave_setLocalAddress(slave, "0.0.0.0");
+    CS104_Slave_setLocalAddress(slave, IP_ADDRESS_LOCAL);
 
     CS104_Slave_setServerMode(slave, CS104_MODE_MULTIPLE_REDUNDANCY_GROUPS);
 
