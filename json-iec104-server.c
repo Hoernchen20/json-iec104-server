@@ -14,23 +14,7 @@
 
 #include "cJSON/cJSON.h"
 
-#define ASDU 193
-#define IP_ADDRESS_LOCAL "10.1.20.15"
-#define IP_ADDRESS_FER_1 "10.1.21.154"
-#define IP_ADDRESS_FER_2 "10.1.21.151"
-
-#define BASE_ADDRESS_M_SP_TB_1 4097
-#define BASE_ADDRESS_M_DP_TB_1 6144
-#define BASE_ADDRESS_M_ME_TD_1 8193
-#define BASE_ADDRESS_M_IT_NA_1 12289
-#define BASE_ADDRESS_C_SC_NA_1 24577
-#define BASE_ADDRESS_C_DC_NA_1 26624
-#define BASE_ADDRESS_C_SE_NA_1 20481
-
-#define NUMBERS_OF_M_SP_TB_1 10
-#define NUMBERS_OF_M_DP_TB_1 5
-#define NUMBERS_OF_M_ME_TD_1 20
-#define NUMBERS_OF_M_IT_TB_1 2
+#include "server_config.h"
 
 struct sM_SP_TB_1 {
     bool value;

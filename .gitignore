@@ -53,3 +53,4 @@ dkms.conf
 
 # Program files
 json-iec104-server
+server_config.h
