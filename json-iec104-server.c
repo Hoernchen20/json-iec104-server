@@ -441,8 +441,10 @@ main(int argc, char** argv)
     CS104_Slave_start(slave);
 
     if (CS104_Slave_isRunning(slave) == false) {
-        printf("{\"error\":\"Starting server failed!\"}\n");
+        printf("{\"error\":\"server start failed\"}\n");
         goto exit_program;
+    } else {
+        printf("{\"info\":\"server start successed\"}\n");
     }
 
     pthread_t IntegratedTotals_thread;
