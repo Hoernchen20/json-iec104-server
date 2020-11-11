@@ -163,7 +163,6 @@ clockSyncHandler (void* parameter, IMasterConnection connection, CS101_ASDU asdu
 {
     struct tm tmTime;
     char buffer[100];
-    char cmd_buf[200];
 
     tmTime.tm_sec = CP56Time2a_getSecond(newTime);
     tmTime.tm_min = CP56Time2a_getMinute(newTime);
@@ -177,6 +176,7 @@ clockSyncHandler (void* parameter, IMasterConnection connection, CS101_ASDU asdu
     printf ("{\"type\":\"C_CS_NA_1\",\"value\":\"%s\"}\n", buffer);
 
 #ifdef CLOCKSYNC_FROM_IEC
+    char cmd_buf[200];
     snprintf(cmd_buf, sizeof(cmd_buf), "sudo /bin/date --set=\"%s\" >/dev/null", buffer);
     if (system(cmd_buf)) {
          printf("{\"warn\":\"set system time failed\"}\n");
