@@ -19,4 +19,8 @@
 #define NUMBERS_OF_M_ME_TD_1 20
 #define NUMBERS_OF_M_IT_TB_1 2
 
+/* uncomment for clocksync from iec message
+   IMPORTANT clock set command use root rights */
+//#define CLOCKSYNC_FROM_IEC
+
 #endif /* SERVER_CONFIG_H_ */

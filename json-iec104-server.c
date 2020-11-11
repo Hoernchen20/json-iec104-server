@@ -176,12 +176,14 @@ clockSyncHandler (void* parameter, IMasterConnection connection, CS101_ASDU asdu
     strftime(buffer, sizeof(buffer), "%FT%X%z", &tmTime);
     printf ("{\"type\":\"C_CS_NA_1\",\"value\":\"%s\"}\n", buffer);
 
+#ifdef CLOCKSYNC_FROM_IEC
     snprintf(cmd_buf, sizeof(cmd_buf), "sudo /bin/date --set=\"%s\" >/dev/null", buffer);
     if (system(cmd_buf)) {
          printf("{\"warn\":\"set system time failed\"}\n");
     } else {
          printf("{\"info\":\"set system time success\"}\n");
     }
+#endif /* CLOCKSYNC_FROM_IEC */
 
     return true;
 }
