@@ -283,7 +283,7 @@ static bool asduHandler(void* parameter, IMasterConnection connection, CS101_ASD
             int object_address = InformationObject_getObjectAddress(io);
             switch (CS101_ASDU_getTypeID(asdu)){
                 case C_SC_NA_1: {
-                    if (object_address >= BASE_ADDRESS_C_SC_NA_1 && object_address <= BASE_ADDRESS_C_SC_NA_1 + 2048 ) {
+                    if (object_address >= BASE_ADDRESS_C_SC_NA_1 && object_address <= BASE_ADDRESS_C_SC_NA_1 + NUMBERS_OF_C_SC_NA_1 ) {
                         CS101_ASDU_setCOT(asdu, CS101_COT_ACTIVATION_CON);
                         IMasterConnection_sendASDU(connection, asdu);
                         SingleCommand sc = (SingleCommand) io;
@@ -300,7 +300,7 @@ static bool asduHandler(void* parameter, IMasterConnection connection, CS101_ASD
                     break;
                 }
                 case C_DC_NA_1: {
-                    if (object_address >= BASE_ADDRESS_C_DC_NA_1 && object_address <= BASE_ADDRESS_C_DC_NA_1 + 2048 ) {
+                    if (object_address >= BASE_ADDRESS_C_DC_NA_1 && object_address <= BASE_ADDRESS_C_DC_NA_1 + NUMBERS_OF_C_DC_NA_1 ) {
                         CS101_ASDU_setCOT(asdu, CS101_COT_ACTIVATION_CON);
                         IMasterConnection_sendASDU(connection, asdu);
                         DoubleCommand dc = (DoubleCommand) io;
@@ -317,7 +317,7 @@ static bool asduHandler(void* parameter, IMasterConnection connection, CS101_ASD
                     break;
                 }
                 case C_SE_NA_1: {
-                    if (object_address >= BASE_ADDRESS_C_SE_NA_1 && object_address <= BASE_ADDRESS_C_SE_NA_1 + 2048 ) {
+                    if (object_address >= BASE_ADDRESS_C_SE_NA_1 && object_address <= BASE_ADDRESS_C_SE_NA_1 + NUMBERS_OF_C_SE_NA_1 ) {
                         CS101_ASDU_setCOT(asdu, CS101_COT_ACTIVATION_CON);
                         IMasterConnection_sendASDU(connection, asdu);
                         SetpointCommandNormalized sp = (SetpointCommandNormalized) io;
