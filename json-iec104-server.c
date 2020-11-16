@@ -51,7 +51,8 @@ bool IsClientConnected(CS104_Slave self)
 
 CP56Time2a GetCP56Time2a(void)
 {
-    CP56Time2a iec_time = CP56Time2a_createFromMsTimestamp(NULL, Hal_getTimeInMs()+2*60*60*1000);;
+    //TODO timezone
+    CP56Time2a iec_time = CP56Time2a_createFromMsTimestamp(NULL, Hal_getTimeInMs()+1*60*60*1000);;
     time_t rawtime;
     struct tm * timeinfo;
 
