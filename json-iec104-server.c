@@ -16,6 +16,8 @@
 
 #include "server_config.h"
 
+#define MS_PER_S (1000)
+
 struct sM_SP_TB_1 {
     bool value;
     QualityDescriptor qualifier;
@@ -51,14 +53,22 @@ bool IsClientConnected(CS104_Slave self)
 
 CP56Time2a GetCP56Time2a(void)
 {
-    //TODO timezone
-    CP56Time2a iec_time = CP56Time2a_createFromMsTimestamp(NULL, Hal_getTimeInMs()+1*60*60*1000);;
-    time_t rawtime;
-    struct tm * timeinfo;
+    uint64_t timestamp_ms = Hal_getTimeInMs();
+    time_t timestamp_s = timestamp_ms/MS_PER_S;
+    struct tm *timeinfo_tz;
 
-    time (&rawtime);
-    timeinfo = localtime (&rawtime);
-    CP56Time2a_setSummerTime(iec_time, (bool)(timeinfo->tm_isdst));
+    timeinfo_tz = localtime (&timestamp_s);
+
+    /* calculate time difference between local timezone and utc */
+    uint64_t diff_to_utc_s = (uint64_t)difftime(mktime(timeinfo_tz), timestamp_s);
+
+    CP56Time2a iec_time = CP56Time2a_createFromMsTimestamp(NULL, (timestamp_ms + diff_to_utc_s * MS_PER_S));
+
+    if(timeinfo_tz->tm_isdst == 1) {
+        CP56Time2a_setSummerTime(iec_time, true);
+    } else {
+        CP56Time2a_setSummerTime(iec_time, false);
+    }
 
     return iec_time;
 }
