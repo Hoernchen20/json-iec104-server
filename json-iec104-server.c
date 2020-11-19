@@ -374,9 +374,6 @@ connectionRequestHandler(void* parameter, const char* ipAddress)
     } else if (strcmp(ipAddress, IP_ADDRESS_FER_2) == 0) {
         printf("{\"info\":\"accept connection from %s\"}\n", ipAddress);
         return true;
-    } else if (strcmp(ipAddress, "192.168.45.5") == 0) {
-        printf("{\"info\":\"accept connection from %s\"}\n", ipAddress);
-        return true;
     } else {
         printf("{\"warn\":\"deny connection from %s\"}\n", ipAddress);
         return false;
