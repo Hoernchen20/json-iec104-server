@@ -445,11 +445,10 @@ int main(int argc, char** argv)
     }
 
     pthread_t IntegratedTotals_thread;
-    int ret;
-
-    ret = pthread_create(&IntegratedTotals_thread, NULL, SendIntegratedTotalsPeriodic, slave);
-    if (ret == 0) {
+    if (pthread_create(&IntegratedTotals_thread, NULL, SendIntegratedTotalsPeriodic, slave) == 0) {
         pthread_detach(IntegratedTotals_thread);
+    } else {
+        printf("{\"error\":\"integrated totals thread creating failed\"}\n");
     }
 
     char input[1000];
@@ -461,7 +460,10 @@ int main(int argc, char** argv)
     int qualifier;
 
     while (running) {
-        fgets(input, 1000, stdin);
+        if(fgets(input, 1000, stdin) == NULL) {
+            printf("{\"error\":\"get input string failed\"}\n");
+            break;
+        }
 
         //parse input
         cJSON *json = cJSON_Parse(input);
