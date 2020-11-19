@@ -42,7 +42,7 @@ pthread_mutex_t M_SP_TB_1_mutex = PTHREAD_MUTEX_INITIALIZER;
 pthread_mutex_t M_DP_TB_1_mutex = PTHREAD_MUTEX_INITIALIZER;
 pthread_mutex_t M_ME_TD_1_mutex = PTHREAD_MUTEX_INITIALIZER;
 
-bool IsClientConnected(CS104_Slave self)
+static bool IsClientConnected(CS104_Slave self)
 {
     if(CS104_Slave_getOpenConnections(self) > 0) {
         return true;
@@ -51,7 +51,7 @@ bool IsClientConnected(CS104_Slave self)
     }
 }
 
-CP56Time2a GetCP56Time2a(void)
+static CP56Time2a GetCP56Time2a(void)
 {
     uint64_t timestamp_ms = Hal_getTimeInMs();
     time_t timestamp_s = timestamp_ms/MS_PER_S;
@@ -73,7 +73,7 @@ CP56Time2a GetCP56Time2a(void)
     return iec_time;
 }
 
-int GetDataTypeNumber(const char *str)
+static int GetDataTypeNumber(const char *str)
 {
     if(strcmp(str, "M_SP_TB_1") == 0) {
         return M_SP_TB_1;
@@ -93,7 +93,8 @@ int GetDataTypeNumber(const char *str)
     return 0;
 }
 
-int GetQualifierNumber(const char *str) {
+static int GetQualifierNumber(const char *str)
+{
     if(strcmp(str, "IEC60870_QUALITY_GOOD") == 0) {
         return IEC60870_QUALITY_GOOD;
     }
@@ -121,8 +122,7 @@ int GetQualifierNumber(const char *str) {
     return IEC60870_QUALITY_GOOD;
 }
 
-static void *
-SendIntegratedTotalsPeriodic(void *arg)
+static void *SendIntegratedTotalsPeriodic(void *arg)
 {
     CS104_Slave slave = arg;
     uint32_t sequenc_number = 0;
@@ -163,14 +163,12 @@ SendIntegratedTotalsPeriodic(void *arg)
     return NULL;
 }
 
-void
-sigint_handler(int signalId)
+static void sigint_handler(int signalId)
 {
     running = false;
 }
 
-static bool
-clockSyncHandler (void* parameter, IMasterConnection connection, CS101_ASDU asdu, CP56Time2a newTime)
+static bool clockSyncHandler (void* parameter, IMasterConnection connection, CS101_ASDU asdu, CP56Time2a newTime)
 {
     struct tm tmTime;
     char buffer[100];
@@ -199,8 +197,7 @@ clockSyncHandler (void* parameter, IMasterConnection connection, CS101_ASDU asdu
     return true;
 }
 
-static bool
-interrogationHandler(void* parameter, IMasterConnection connection, CS101_ASDU asdu, uint8_t qoi)
+static bool interrogationHandler(void* parameter, IMasterConnection connection, CS101_ASDU asdu, uint8_t qoi)
 {
     printf("{\"info\":\"received interrogation for group %i\"}\n", qoi);
 
@@ -365,8 +362,7 @@ static bool asduHandler(void* parameter, IMasterConnection connection, CS101_ASD
     return rc;
 }
 
-static bool
-connectionRequestHandler(void* parameter, const char* ipAddress)
+static bool connectionRequestHandler(void* parameter, const char* ipAddress)
 {
     if (strcmp(ipAddress, IP_ADDRESS_FER_1) == 0) {
         printf("{\"info\":\"accept connection from %s\"}\n", ipAddress);
@@ -380,8 +376,7 @@ connectionRequestHandler(void* parameter, const char* ipAddress)
     }
 }
 
-static void
-ConnectionEventHandler(void* parameter, IMasterConnection connection, CS104_PeerConnectionEvent event)
+static void ConnectionEventHandler(void* parameter, IMasterConnection connection, CS104_PeerConnectionEvent event)
 {
     switch (event) {
     case CS104_CON_EVENT_ACTIVATED:
@@ -397,8 +392,7 @@ ConnectionEventHandler(void* parameter, IMasterConnection connection, CS104_Peer
 }
 
 
-int
-main(int argc, char** argv)
+int main(int argc, char** argv)
 {
     /* Add Ctrl-C handler */
     signal(SIGINT, sigint_handler);
@@ -431,11 +425,6 @@ main(int argc, char** argv)
 
     CS104_Slave_setConnectionRequestHandler(slave, connectionRequestHandler, NULL);
     CS104_Slave_setConnectionEventHandler(slave, ConnectionEventHandler, NULL);
-
-    /* Set server mode to allow multiple clients using the application layer
-     * NOTE: library has to be compiled with CONFIG_CS104_SUPPORT_SERVER_MODE_CONNECTION_IS_REDUNDANCY_GROUP enabled (=1)
-     */
-//    CS104_Slave_setServerMode(slave, CS104_MODE_CONNECTION_IS_REDUNDANCY_GROUP);
 
     /* init data structures */
     for (int i = 0; i < NUMBERS_OF_M_IT_TB_1; i++) {
