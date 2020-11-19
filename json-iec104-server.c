@@ -467,7 +467,7 @@ int main(int argc, char** argv)
     while (running) {
         if(fgets(input, 1000, stdin) == NULL) {
             printf("{\"error\":\"get input string failed\"}\n");
-            break;
+            continue;
         }
 
         //parse input
