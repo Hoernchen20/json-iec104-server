@@ -42,6 +42,11 @@ pthread_mutex_t M_SP_TB_1_mutex = PTHREAD_MUTEX_INITIALIZER;
 pthread_mutex_t M_DP_TB_1_mutex = PTHREAD_MUTEX_INITIALIZER;
 pthread_mutex_t M_ME_TD_1_mutex = PTHREAD_MUTEX_INITIALIZER;
 
+static bool update_m_sp_tb_1_data(int address, bool value, int qualifier);
+static bool update_m_dp_tb_1_data(int address, DoublePointValue value, int qualifier);
+static bool update_m_me_td_1_data(int address, float value, int qualifier);
+static void update_m_it_tb_1_data(int address, uint32_t value);
+
 static bool IsClientConnected(CS104_Slave self)
 {
     if(CS104_Slave_getOpenConnections(self) > 0) {
@@ -504,7 +509,7 @@ int main(int argc, char** argv)
                 printf("{\"error\":\"invalid data qualifier\"}\n");
             }
         } else {
-            printf("{\"error\":\"invalid json\"}\n");
+            printf("{\"error\":\"invalid json input\"}\n");
         }
         cJSON_Delete(json);
 
@@ -513,7 +518,7 @@ int main(int argc, char** argv)
             switch(type) {
                 case M_SP_TB_1: {
                     if(0 <= address && address < NUMBERS_OF_M_SP_TB_1) {
-                        if (IsClientConnected(slave) == true) {
+                        if (IsClientConnected(slave) == true && update_m_sp_tb_1_data(address, (bool)value, qualifier) == true) {
                             CS101_ASDU newAsdu = CS101_ASDU_create(
                                 appLayerParameters, false, CS101_COT_SPONTANEOUS, ASDU, ASDU, false, false);
                             InformationObject io = (InformationObject) SinglePointWithCP56Time2a_create(
@@ -523,11 +528,6 @@ int main(int argc, char** argv)
                             CS104_Slave_enqueueASDU(slave, newAsdu);
                             CS101_ASDU_destroy(newAsdu);
                         }
-
-                        pthread_mutex_lock(&M_SP_TB_1_mutex);
-                        M_SP_TB_1_data[address].value = (bool)(value);
-                        M_SP_TB_1_data[address].qualifier = qualifier;
-                        pthread_mutex_unlock(&M_SP_TB_1_mutex);
                     } else {
                         printf("{\"error\":\"address not in range\"}\n");
                     }
@@ -535,7 +535,7 @@ int main(int argc, char** argv)
                 }
                 case M_DP_TB_1: {
                     if(0 <= address && address < NUMBERS_OF_M_ME_TD_1) {
-                        if (IsClientConnected(slave) == true) {
+                        if (IsClientConnected(slave) == true && update_m_dp_tb_1_data(address, (DoublePointValue)value, qualifier) == true) {
                             CS101_ASDU newAsdu = CS101_ASDU_create(
                                 appLayerParameters, false, CS101_COT_SPONTANEOUS, ASDU, ASDU, false, false);
                             InformationObject io = (InformationObject) DoublePointWithCP56Time2a_create(
@@ -545,11 +545,6 @@ int main(int argc, char** argv)
                             CS104_Slave_enqueueASDU(slave, newAsdu);
                             CS101_ASDU_destroy(newAsdu);
                         }
-
-                        pthread_mutex_lock(&M_DP_TB_1_mutex);
-                        M_DP_TB_1_data[address].value = (DoublePointValue)(value);
-                        M_DP_TB_1_data[address].qualifier = qualifier;
-                        pthread_mutex_unlock(&M_DP_TB_1_mutex);
                     } else {
                         printf("{\"error\":\"address not in range\"}\n");
                     }
@@ -557,7 +552,7 @@ int main(int argc, char** argv)
                 }
                 case M_ME_TD_1: {
                     if(0 <= address && address < NUMBERS_OF_M_ME_TD_1) {
-                            if (IsClientConnected(slave) == true) {
+                            if (IsClientConnected(slave) == true && update_m_me_td_1_data(address, (float)value, qualifier) == true) {
                             CS101_ASDU newAsdu = CS101_ASDU_create(
                                 appLayerParameters, false, CS101_COT_SPONTANEOUS, ASDU, ASDU, false, false);
                             InformationObject io = (InformationObject) MeasuredValueNormalizedWithCP56Time2a_create(
@@ -567,11 +562,6 @@ int main(int argc, char** argv)
                             CS104_Slave_enqueueASDU(slave, newAsdu);
                             CS101_ASDU_destroy(newAsdu);
                         }
-
-                        pthread_mutex_lock(&M_ME_TD_1_mutex);
-                        M_ME_TD_1_data[address].value = (float)(value);
-                        M_ME_TD_1_data[address].qualifier = qualifier;
-                        pthread_mutex_unlock(&M_ME_TD_1_mutex);
                     } else {
                         printf("{\"error\":\"address not in range\"}\n");
                     }
@@ -579,9 +569,7 @@ int main(int argc, char** argv)
                 }
                 case M_IT_TB_1: {
                     if(0 <= address && address < NUMBERS_OF_M_IT_TB_1) {
-                        pthread_mutex_lock(&M_IT_TB_1_mutex);
-                        BinaryCounterReading_setValue(&M_IT_TB_1_data[address], (uint64_t)(value) % UINT32_MAX);
-                        pthread_mutex_unlock(&M_IT_TB_1_mutex);
+                        update_m_it_tb_1_data(address, (uint64_t)(value) % UINT32_MAX);
                     } else {
                         printf("{\"error\":\"address not in range\"}\n");
                     }
@@ -610,4 +598,74 @@ exit_program:
     }*/
 
     CS104_Slave_destroy(slave);
+}
+
+static bool update_m_sp_tb_1_data(int address, bool value, int qualifier)
+{
+    bool rc = false;
+
+    pthread_mutex_lock(&M_SP_TB_1_mutex);
+
+    if(M_SP_TB_1_data[address].value != value) {
+        M_SP_TB_1_data[address].value = value;
+        rc = true;
+    }
+
+    if(M_SP_TB_1_data[address].qualifier != qualifier) {
+        M_SP_TB_1_data[address].qualifier = qualifier;
+        rc = true;
+    }
+    
+    pthread_mutex_unlock(&M_SP_TB_1_mutex);
+
+    return rc;
+}
+
+static bool update_m_dp_tb_1_data(int address, DoublePointValue value, int qualifier)
+{
+    bool rc = false;
+
+    pthread_mutex_lock(&M_DP_TB_1_mutex);
+
+    if(M_DP_TB_1_data[address].value != value) {
+        M_DP_TB_1_data[address].value = value;
+        rc = true;
+    }
+
+    if(M_DP_TB_1_data[address].qualifier != qualifier) {
+        M_DP_TB_1_data[address].qualifier = qualifier;
+        rc = true;
+    }
+    
+    pthread_mutex_unlock(&M_DP_TB_1_mutex);
+
+    return rc;
+}
+
+static bool update_m_me_td_1_data(int address, float value, int qualifier)
+{
+    bool rc = false;
+
+    pthread_mutex_lock(&M_ME_TD_1_mutex);
+
+    if(M_ME_TD_1_data[address].value != value) {
+        M_ME_TD_1_data[address].value = value;
+        rc = true;
+    }
+
+    if(M_ME_TD_1_data[address].qualifier != qualifier) {
+        M_ME_TD_1_data[address].qualifier = qualifier;
+        rc = true;
+    }
+    
+    pthread_mutex_unlock(&M_ME_TD_1_mutex);
+
+    return rc;
+}
+
+static void update_m_it_tb_1_data(int address, uint32_t value)
+{
+    pthread_mutex_lock(&M_IT_TB_1_mutex);
+    BinaryCounterReading_setValue(&M_IT_TB_1_data[address], value);
+    pthread_mutex_unlock(&M_IT_TB_1_mutex);
 }
