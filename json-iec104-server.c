@@ -518,7 +518,7 @@ int main(int argc, char** argv)
             switch(type) {
                 case M_SP_TB_1: {
                     if(0 <= address && address < NUMBERS_OF_M_SP_TB_1) {
-                        if (IsClientConnected(slave) == true && update_m_sp_tb_1_data(address, (bool)value, qualifier) == true) {
+                        if (update_m_sp_tb_1_data(address, (bool)value, qualifier) == true && IsClientConnected(slave) == true) {
                             CS101_ASDU newAsdu = CS101_ASDU_create(
                                 appLayerParameters, false, CS101_COT_SPONTANEOUS, ASDU, ASDU, false, false);
                             InformationObject io = (InformationObject) SinglePointWithCP56Time2a_create(
@@ -535,7 +535,7 @@ int main(int argc, char** argv)
                 }
                 case M_DP_TB_1: {
                     if(0 <= address && address < NUMBERS_OF_M_ME_TD_1) {
-                        if (IsClientConnected(slave) == true && update_m_dp_tb_1_data(address, (DoublePointValue)value, qualifier) == true) {
+                        if (update_m_dp_tb_1_data(address, (DoublePointValue)value, qualifier) == true && IsClientConnected(slave) == true) {
                             CS101_ASDU newAsdu = CS101_ASDU_create(
                                 appLayerParameters, false, CS101_COT_SPONTANEOUS, ASDU, ASDU, false, false);
                             InformationObject io = (InformationObject) DoublePointWithCP56Time2a_create(
@@ -552,7 +552,7 @@ int main(int argc, char** argv)
                 }
                 case M_ME_TD_1: {
                     if(0 <= address && address < NUMBERS_OF_M_ME_TD_1) {
-                            if (IsClientConnected(slave) == true && update_m_me_td_1_data(address, (float)value, qualifier) == true) {
+                        if (update_m_me_td_1_data(address, (float)value, qualifier) == true && IsClientConnected(slave) == true) {
                             CS101_ASDU newAsdu = CS101_ASDU_create(
                                 appLayerParameters, false, CS101_COT_SPONTANEOUS, ASDU, ASDU, false, false);
                             InformationObject io = (InformationObject) MeasuredValueNormalizedWithCP56Time2a_create(
