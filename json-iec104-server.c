@@ -60,16 +60,13 @@ static CP56Time2a GetCP56Time2a(void)
 {
     uint64_t timestamp_ms = Hal_getTimeInMs();
     time_t timestamp_s = timestamp_ms/MS_PER_S;
-    struct tm *timeinfo_tz;
+    struct tm timeinfo_tz = {0};
 
-    timeinfo_tz = localtime (&timestamp_s);
+    localtime_r(&timestamp_s, &timeinfo_tz);
 
-    /* calculate time difference between local timezone and utc */
-    uint64_t diff_to_utc_s = (uint64_t)difftime(mktime(timeinfo_tz), timestamp_s);
+    CP56Time2a iec_time = CP56Time2a_createFromMsTimestamp(NULL, (timestamp_ms + timeinfo_tz.tm_gmtoff * MS_PER_S));
 
-    CP56Time2a iec_time = CP56Time2a_createFromMsTimestamp(NULL, (timestamp_ms + diff_to_utc_s * MS_PER_S));
-
-    if(timeinfo_tz->tm_isdst == 1) {
+    if(timeinfo_tz.tm_isdst == 1) {
         CP56Time2a_setSummerTime(iec_time, true);
     } else {
         CP56Time2a_setSummerTime(iec_time, false);
