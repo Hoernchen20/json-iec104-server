@@ -351,6 +351,10 @@ static bool asduHandler(void* parameter, IMasterConnection connection, CS101_ASD
                 }
             }
             InformationObject_destroy(io);
+        } else {
+            CS101_ASDU_setCOT(asdu, CS101_COT_UNKNOWN_TYPE_ID);
+            IMasterConnection_sendASDU(connection, asdu);
+            printf("{\"warn\":\"received unknown type id: %d\"}\n", CS101_ASDU_getTypeID(asdu));
         }
 
     } else {
