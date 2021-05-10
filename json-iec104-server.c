@@ -350,9 +350,8 @@ static bool asduHandler(void* parameter, IMasterConnection connection, CS101_ASD
                     break;
                 }
             }
+            InformationObject_destroy(io);
         }
-
-        InformationObject_destroy(io);
 
     } else {
         CS101_ASDU_setCOT(asdu, CS101_COT_UNKNOWN_COT);
