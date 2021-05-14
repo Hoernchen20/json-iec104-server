@@ -1,0 +1,118 @@
+[
+    {
+        "id": "7a783e81.034a8",
+        "type": "tab",
+        "label": "Zählwerte",
+        "disabled": false,
+        "info": ""
+    },
+    {
+        "id": "43a50c76.cbf59c",
+        "type": "inject",
+        "z": "7a783e81.034a8",
+        "name": "1min",
+        "props": [
+            {
+                "p": "payload"
+            }
+        ],
+        "repeat": "60",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "str",
+        "x": 110,
+        "y": 40,
+        "wires": [
+            [
+                "821d646c.146668",
+                "ae3933dd.da1c08"
+            ]
+        ]
+    },
+    {
+        "id": "821d646c.146668",
+        "type": "random",
+        "z": "7a783e81.034a8",
+        "name": "",
+        "low": "0",
+        "high": "10",
+        "inte": "true",
+        "property": "payload",
+        "x": 280,
+        "y": 40,
+        "wires": [
+            [
+                "4eb45c0c.ef6c94"
+            ]
+        ]
+    },
+    {
+        "id": "4eb45c0c.ef6c94",
+        "type": "function",
+        "z": "7a783e81.034a8",
+        "name": "ZW 0",
+        "func": "var value = context.get(\"counter_value\") || 0;\nvalue += msg.payload;\n\nif (value > 4294967295) {\n    value -= 4294967295;\n}\n\ncontext.set(\"counter_value\", value);\n\nvar newMsg = { payload: {\n    \"type\": \"M_IT_TB_1\",\n    \"value\": value,\n    \"address\": 0,\n    \"qualifier\": \"IEC60870_QUALITY_GOOD\"}\n}\n\nnewMsg.topic = newMsg.payload.type + newMsg.payload.address;\n\nreturn newMsg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "x": 470,
+        "y": 40,
+        "wires": [
+            [
+                "9c59c678.d456e8"
+            ]
+        ]
+    },
+    {
+        "id": "9c59c678.d456e8",
+        "type": "link out",
+        "z": "7a783e81.034a8",
+        "name": "Zählwerte",
+        "links": [
+            "e2ad51e2.4f752",
+            "7ce67f1.66889"
+        ],
+        "x": 655,
+        "y": 80,
+        "wires": []
+    },
+    {
+        "id": "ae3933dd.da1c08",
+        "type": "random",
+        "z": "7a783e81.034a8",
+        "name": "",
+        "low": "0",
+        "high": "10",
+        "inte": "true",
+        "property": "payload",
+        "x": 280,
+        "y": 80,
+        "wires": [
+            [
+                "b6cbac85.d291e8"
+            ]
+        ]
+    },
+    {
+        "id": "b6cbac85.d291e8",
+        "type": "function",
+        "z": "7a783e81.034a8",
+        "name": "ZW 1",
+        "func": "var value = context.get(\"counter_value\") || 0;\nvalue += msg.payload;\n\nif (value > 4294967295) {\n    value -= 4294967295;\n}\n\ncontext.set(\"counter_value\", value);\n\nvar newMsg = { payload: {\n    \"type\": \"M_IT_TB_1\",\n    \"value\": value,\n    \"address\": 1,\n    \"qualifier\": \"IEC60870_QUALITY_GOOD\"}\n}\n\nnewMsg.topic = newMsg.payload.type + newMsg.payload.address;\n\nreturn newMsg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "x": 470,
+        "y": 80,
+        "wires": [
+            [
+                "9c59c678.d456e8"
+            ]
+        ]
+    }
+]

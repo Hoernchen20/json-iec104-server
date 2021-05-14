@@ -1,0 +1,212 @@
+[
+    {
+        "id": "d1b245bc.a8dbb8",
+        "type": "tab",
+        "label": "Befehle",
+        "disabled": false,
+        "info": ""
+    },
+    {
+        "id": "7b572d76.8e0e54",
+        "type": "link in",
+        "z": "d1b245bc.a8dbb8",
+        "name": "Befehle",
+        "links": [
+            "f83fb765.7b6088",
+            "4a373436.5fb2a4"
+        ],
+        "x": 55,
+        "y": 40,
+        "wires": [
+            [
+                "7a8b5752.6957d8"
+            ]
+        ]
+    },
+    {
+        "id": "7a8b5752.6957d8",
+        "type": "switch",
+        "z": "d1b245bc.a8dbb8",
+        "name": "Type",
+        "property": "payload.type",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "eq",
+                "v": "C_SC_NA_1",
+                "vt": "str"
+            },
+            {
+                "t": "eq",
+                "v": "C_DC_NA_1",
+                "vt": "str"
+            },
+            {
+                "t": "eq",
+                "v": "C_SE_NA_1",
+                "vt": "str"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 3,
+        "x": 170,
+        "y": 40,
+        "wires": [
+            [
+                "3448cf70.0dec5"
+            ],
+            [
+                "30d83f6e.3a45"
+            ],
+            [
+                "d9b4d67.b5c7a28"
+            ]
+        ]
+    },
+    {
+        "id": "3c0a4c3c.396394",
+        "type": "trigger",
+        "z": "d1b245bc.a8dbb8",
+        "name": "",
+        "op1": "true",
+        "op2": "false",
+        "op1type": "bool",
+        "op2type": "bool",
+        "duration": "5",
+        "extend": false,
+        "units": "s",
+        "reset": "",
+        "bytopic": "all",
+        "topic": "topic",
+        "outputs": 1,
+        "x": 610,
+        "y": 40,
+        "wires": [
+            [
+                "73c4131c.44408c"
+            ]
+        ]
+    },
+    {
+        "id": "73c4131c.44408c",
+        "type": "function",
+        "z": "d1b245bc.a8dbb8",
+        "name": "EM 0",
+        "func": "var value = 0;\n\nif(msg.payload === true) {\n    value = 1;\n}\n\nvar newMsg = { payload: {\n    \"type\": \"M_SP_TB_1\",\n    \"value\": value,\n    \"address\": 0,\n    \"qualifier\": \"IEC60870_QUALITY_GOOD\"}\n}\n\nnewMsg.topic = newMsg.payload.type + newMsg.payload.address;\n\nreturn newMsg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "x": 790,
+        "y": 40,
+        "wires": [
+            [
+                "2bef5990.f0fc76"
+            ]
+        ]
+    },
+    {
+        "id": "3448cf70.0dec5",
+        "type": "function",
+        "z": "d1b245bc.a8dbb8",
+        "name": "EB 0",
+        "func": "if (msg.payload.address === 0 && msg.payload.value === 1) {\n    return msg;\n}",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "x": 450,
+        "y": 40,
+        "wires": [
+            [
+                "3c0a4c3c.396394"
+            ]
+        ]
+    },
+    {
+        "id": "2bef5990.f0fc76",
+        "type": "link out",
+        "z": "d1b245bc.a8dbb8",
+        "name": "Befehle Rückmeldung",
+        "links": [
+            "7ce67f1.66889"
+        ],
+        "x": 895,
+        "y": 40,
+        "wires": []
+    },
+    {
+        "id": "d9b4d67.b5c7a28",
+        "type": "function",
+        "z": "d1b245bc.a8dbb8",
+        "name": "SW 0",
+        "func": "if (msg.payload.address === 0) {\n    return msg;\n}",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "x": 450,
+        "y": 120,
+        "wires": [
+            [
+                "7a53746.c12a78c"
+            ]
+        ]
+    },
+    {
+        "id": "7a53746.c12a78c",
+        "type": "template",
+        "z": "d1b245bc.a8dbb8",
+        "name": "MW 20",
+        "field": "payload",
+        "fieldType": "msg",
+        "format": "handlebars",
+        "syntax": "mustache",
+        "template": "{\"type\":\"M_ME_TD_1\",\"value\":{{payload.value}},\"address\":20,\"qualifier\":\"IEC60870_QUALITY_GOOD\"}",
+        "output": "str",
+        "x": 800,
+        "y": 120,
+        "wires": [
+            [
+                "2bef5990.f0fc76"
+            ]
+        ]
+    },
+    {
+        "id": "af04ee56.8c4e9",
+        "type": "function",
+        "z": "d1b245bc.a8dbb8",
+        "name": "DM 0",
+        "func": "var value = 0;\n\nif(0 <= msg.payload.value && msg.payload.value <= 3) {\n    value = msg.payload.value;\n}\n\nvar newMsg = { payload: {\n    \"type\": \"M_DP_TB_1\",\n    \"value\": value,\n    \"address\": 0,\n    \"qualifier\": \"IEC60870_QUALITY_GOOD\"}\n}\n\nnewMsg.topic = newMsg.payload.type + newMsg.payload.address;\n\nreturn newMsg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "x": 790,
+        "y": 80,
+        "wires": [
+            [
+                "2bef5990.f0fc76"
+            ]
+        ]
+    },
+    {
+        "id": "30d83f6e.3a45",
+        "type": "function",
+        "z": "d1b245bc.a8dbb8",
+        "name": "DB 0",
+        "func": "if (msg.payload.address === 0 && \n        (msg.payload.value === 1 || msg.payload.value === 2)) {\n    return msg;\n}",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "x": 450,
+        "y": 80,
+        "wires": [
+            [
+                "af04ee56.8c4e9"
+            ]
+        ]
+    }
+]

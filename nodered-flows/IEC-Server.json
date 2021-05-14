@@ -1,0 +1,249 @@
+[
+    {
+        "id": "4aad4ee4.51c908",
+        "type": "tab",
+        "label": "IEC-Server",
+        "disabled": false,
+        "info": ""
+    },
+    {
+        "id": "981fe303.297518",
+        "type": "daemon",
+        "z": "4aad4ee4.51c908",
+        "name": "iec104-server",
+        "command": "/home/pi/json-iec104-server/json-iec104-server",
+        "args": "",
+        "autorun": true,
+        "cr": true,
+        "redo": false,
+        "op": "string",
+        "closer": "SIGKILL",
+        "x": 320,
+        "y": 140,
+        "wires": [
+            [
+                "652c27b8.2400b",
+                "a1cfc08e.f6db38"
+            ],
+            [
+                "e58d9575.6cdbb8"
+            ],
+            [
+                "23284b02.2a53a4"
+            ]
+        ]
+    },
+    {
+        "id": "c879dfeb.19c658",
+        "type": "inject",
+        "z": "4aad4ee4.51c908",
+        "name": "Start",
+        "props": [
+            {
+                "p": "start",
+                "v": "",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "x": 90,
+        "y": 100,
+        "wires": [
+            [
+                "981fe303.297518"
+            ]
+        ]
+    },
+    {
+        "id": "b62affe6.99253",
+        "type": "inject",
+        "z": "4aad4ee4.51c908",
+        "name": "Stop",
+        "props": [
+            {
+                "p": "payload"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "{\"type\":\"command\",\"value\":0}",
+        "payloadType": "json",
+        "x": 90,
+        "y": 140,
+        "wires": [
+            [
+                "981fe303.297518"
+            ]
+        ]
+    },
+    {
+        "id": "e58d9575.6cdbb8",
+        "type": "debug",
+        "z": "4aad4ee4.51c908",
+        "name": "",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 610,
+        "y": 180,
+        "wires": []
+    },
+    {
+        "id": "23284b02.2a53a4",
+        "type": "debug",
+        "z": "4aad4ee4.51c908",
+        "name": "",
+        "active": false,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 610,
+        "y": 220,
+        "wires": []
+    },
+    {
+        "id": "63bc1b1.7e009e4",
+        "type": "json",
+        "z": "4aad4ee4.51c908",
+        "name": "",
+        "property": "payload",
+        "action": "obj",
+        "pretty": true,
+        "x": 810,
+        "y": 140,
+        "wires": [
+            [
+                "4a373436.5fb2a4",
+                "a474870b.e2c8d8"
+            ]
+        ]
+    },
+    {
+        "id": "652c27b8.2400b",
+        "type": "debug",
+        "z": "4aad4ee4.51c908",
+        "name": "",
+        "active": false,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 610,
+        "y": 100,
+        "wires": []
+    },
+    {
+        "id": "4a373436.5fb2a4",
+        "type": "link out",
+        "z": "4aad4ee4.51c908",
+        "name": "IEC-Server-Out",
+        "links": [
+            "7b572d76.8e0e54"
+        ],
+        "x": 895,
+        "y": 140,
+        "wires": []
+    },
+    {
+        "id": "7ce67f1.66889",
+        "type": "link in",
+        "z": "4aad4ee4.51c908",
+        "name": "IEC-Server-In",
+        "links": [
+            "9c59c678.d456e8",
+            "2bef5990.f0fc76"
+        ],
+        "x": 55,
+        "y": 180,
+        "wires": [
+            [
+                "981fe303.297518"
+            ]
+        ]
+    },
+    {
+        "id": "a1cfc08e.f6db38",
+        "type": "function",
+        "z": "4aad4ee4.51c908",
+        "name": "split / check length",
+        "func": "var outputMsgs = [];\nvar objects = msg.payload.split(\"\\n\");\nfor (var o in objects) {\n if(objects[o].length > 10) {\n outputMsgs.push({payload:objects[o]});\n    }\n}\nreturn [ outputMsgs ];\n",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "x": 650,
+        "y": 140,
+        "wires": [
+            [
+                "63bc1b1.7e009e4"
+            ]
+        ]
+    },
+    {
+        "id": "a474870b.e2c8d8",
+        "type": "debug",
+        "z": "4aad4ee4.51c908",
+        "name": "",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 950,
+        "y": 180,
+        "wires": []
+    },
+    {
+        "id": "ebb746e.4b4efb8",
+        "type": "catch",
+        "z": "4aad4ee4.51c908",
+        "name": "",
+        "scope": null,
+        "uncaught": false,
+        "x": 80,
+        "y": 40,
+        "wires": [
+            [
+                "e0f7a1e9.6b3798"
+            ]
+        ]
+    },
+    {
+        "id": "e0f7a1e9.6b3798",
+        "type": "debug",
+        "z": "4aad4ee4.51c908",
+        "name": "",
+        "active": true,
+        "tosidebar": true,
+        "console": true,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 230,
+        "y": 40,
+        "wires": []
+    }
+]
