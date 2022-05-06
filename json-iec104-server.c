@@ -137,7 +137,7 @@ static void *SendIntegratedTotalsPeriodic(void *arg)
 
         if (IsClientConnected(slave) == true && timeinfo->tm_sec == 1) {
             CS101_ASDU newAsdu = CS101_ASDU_create(
-                appLayerParameters, false, CS101_COT_PERIODIC, ASDU, ASDU, false, false);
+                appLayerParameters, false, CS101_COT_SPONTANEOUS, ASDU, ASDU, false, false);
 
             InformationObject io = (InformationObject) MeasuredValueNormalized_create(NULL, 0, 0.0, 0);
 
