@@ -4,7 +4,6 @@
 #include <string.h>
 #include <signal.h>
 
-#include "iec60870_slave.h"
 #include "cs104_slave.h"
 
 #include "hal_thread.h"
@@ -121,18 +120,24 @@ asduHandler(void* parameter, IMasterConnection connection, CS101_ASDU asdu)
         if  (CS101_ASDU_getCOT(asdu) == CS101_COT_ACTIVATION) {
             InformationObject io = CS101_ASDU_getElement(asdu, 0);
 
-            if (InformationObject_getObjectAddress(io) == 5000) {
-                SingleCommand sc = (SingleCommand) io;
+            if (io) {
+                if (InformationObject_getObjectAddress(io) == 5000) {
+                    SingleCommand sc = (SingleCommand) io;
 
-                printf("IOA: %i switch to %i\n", InformationObject_getObjectAddress(io),
-                        SingleCommand_getState(sc));
+                    printf("IOA: %i switch to %i\n", InformationObject_getObjectAddress(io),
+                            SingleCommand_getState(sc));
 
-                CS101_ASDU_setCOT(asdu, CS101_COT_ACTIVATION_CON);
+                    CS101_ASDU_setCOT(asdu, CS101_COT_ACTIVATION_CON);
+                }
+                else
+                    CS101_ASDU_setCOT(asdu, CS101_COT_UNKNOWN_IOA);
+
+                InformationObject_destroy(io);
             }
-            else
-                CS101_ASDU_setCOT(asdu, CS101_COT_UNKNOWN_IOA);
-
-            InformationObject_destroy(io);
+            else {
+                printf("ERROR: ASDU contains no information object!\n");
+                return true;
+            }
         }
         else
             CS101_ASDU_setCOT(asdu, CS101_COT_UNKNOWN_COT);
@@ -164,6 +169,23 @@ connectionRequestHandler(void* parameter, const char* ipAddress)
 #endif
 }
 
+static void
+securityEventHandler(void* parameter, TLSEventLevel eventLevel, int eventCode, const char* msg, TLSConnection con)
+{
+    (void)parameter;
+
+    char peerAddrBuf[60];
+    char* peerAddr = NULL;
+    const char* tlsVersion = "unknown";
+
+    if (con) {
+        peerAddr = TLSConnection_getPeerAddress(con, peerAddrBuf);
+        tlsVersion = TLSConfigVersion_toString(TLSConnection_getTLSVersion(con));
+    }
+
+    printf("[SECURITY EVENT] %s (t: %i, c: %i, version: %s remote-ip: %s)\n", msg, eventLevel, eventCode, tlsVersion, peerAddr);
+}
+
 int
 main(int argc, char** argv)
 {
@@ -171,6 +193,10 @@ main(int argc, char** argv)
     signal(SIGINT, sigint_handler);
 
     TLSConfiguration tlsConfig = TLSConfiguration_create();
+
+    TLSConfiguration_setEventHandler(tlsConfig, securityEventHandler, NULL);
+
+    TLSConfiguration_setMinTlsVersion(tlsConfig, TLS_VERSION_TLS_1_2);
 
     TLSConfiguration_setChainValidation(tlsConfig, false);
     TLSConfiguration_setAllowOnlyKnownCertificates(tlsConfig, true);
@@ -180,6 +206,8 @@ main(int argc, char** argv)
     TLSConfiguration_addCACertificateFromFile(tlsConfig, "root.cer");
 
     TLSConfiguration_addAllowedCertificateFromFile(tlsConfig, "client1.cer");
+
+    TLSConfiguration_setRenegotiationTime(tlsConfig, 1000);
 
     /* create a new slave/server instance */
     CS104_Slave slave = CS104_Slave_createSecure(100, 100, tlsConfig);

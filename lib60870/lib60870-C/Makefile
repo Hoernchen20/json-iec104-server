@@ -35,10 +35,10 @@ LIB_SOURCE_DIRS += src/hal/memory
 endif
 
 ifdef WITH_MBEDTLS
-LIB_SOURCE_DIRS += dependencies/mbedtls-2.6.0/library
+LIB_SOURCE_DIRS += dependencies/mbedtls-2.28/library
 LIB_SOURCE_DIRS += src/hal/tls/mbedtls
 LIB_INCLUDE_DIRS += src/hal/tls/mbedtls
-LIB_INCLUDE_DIRS += dependencies/mbedtls-2.6.0/include
+LIB_INCLUDE_DIRS += dependencies/mbedtls-2.28/include
 CFLAGS += -D'MBEDTLS_CONFIG_FILE="mbedtls_config.h"'
 CFLAGS += -D'CONFIG_CS104_SUPPORT_TLS=1'
 endif
@@ -62,6 +62,8 @@ LIB_API_HEADER_FILES = src/hal/inc/hal_time.h
 LIB_API_HEADER_FILES += src/hal/inc/hal_thread.h
 LIB_API_HEADER_FILES += src/hal/inc/hal_socket.h
 LIB_API_HEADER_FILES += src/hal/inc/hal_serial.h
+LIB_API_HEADER_FILES += src/hal/inc/hal_base.h
+LIB_API_HEADER_FILES += src/common/inc/linked_list.h
 LIB_API_HEADER_FILES += src/inc/api/cs101_information_objects.h
 LIB_API_HEADER_FILES += src/inc/api/cs101_master.h
 LIB_API_HEADER_FILES += src/inc/api/cs101_slave.h
@@ -110,7 +112,7 @@ static_checks:	lib
 	splint -preproc +posixlib +skip-sys-headers +gnuextensions $(LIB_INCLUDES) $(LIB_SOURCES)
 
 cppcheck:	lib
-	cppcheck --force --std=c99 --enable=all $(LIB_INCLUDES) $(LIB_SOURCES) 2> cppcheck-output.xml
+	cppcheck --xml --force --std=c99 --enable=all $(LIB_INCLUDES) $(LIB_SOURCES) 2> cppcheck-output.xml
 
 lib:	$(LIB_NAME)
 

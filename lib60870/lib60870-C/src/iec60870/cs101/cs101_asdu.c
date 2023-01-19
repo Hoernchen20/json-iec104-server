@@ -1,5 +1,5 @@
 /*
- *  Copyright 2016-2019 MZ Automation GmbH
+ *  Copyright 2016-2022 Michael Zillgith
  *
  *  This file is part of lib60870-C
  *
@@ -52,7 +52,7 @@ asduFrame_setNextByte(Frame self, uint8_t byte)
 }
 
 static void
-asduFrame_appendBytes(Frame self, uint8_t* bytes, int numberOfBytes)
+asduFrame_appendBytes(Frame self, const uint8_t* bytes, int numberOfBytes)
 {
     ASDUFrame frame = (ASDUFrame) self;
 
@@ -93,6 +93,29 @@ CS101_ASDU_create(CS101_AppLayerParameters parameters, bool isSequence, CS101_Ca
         CS101_ASDU_initializeStatic(self, parameters, isSequence, cot, oa, ca, isTest, isNegative);
 
     return (CS101_ASDU) self;
+}
+
+CS101_ASDU
+CS101_ASDU_clone(CS101_ASDU self, CS101_StaticASDU clone)
+{
+    if (clone == NULL) {
+        clone = (CS101_StaticASDU) GLOBAL_MALLOC(sizeof(sCS101_StaticASDU));
+    }
+
+    if (clone) {
+        CS101_ASDU_initializeStatic(clone, self->parameters, CS101_ASDU_isSequence(self), 
+            CS101_ASDU_getCOT(self), CS101_ASDU_getOA(self), CS101_ASDU_getCA(self), CS101_ASDU_isTest(self), CS101_ASDU_isNegative(self));
+
+        uint8_t* payload = CS101_ASDU_getPayload(self);
+        int payloadSize = CS101_ASDU_getPayloadSize(self);
+
+        CS101_ASDU_setTypeID((CS101_ASDU)clone, CS101_ASDU_getTypeID(self));
+        CS101_ASDU_setNumberOfElements((CS101_ASDU)clone, CS101_ASDU_getNumberOfElements(self));
+
+        CS101_ASDU_addPayload((CS101_ASDU)clone, payload, payloadSize);
+    }
+
+    return (CS101_ASDU) clone;
 }
 
 CS101_ASDU
@@ -189,6 +212,9 @@ CS101_ASDU_getPayloadSize(CS101_ASDU self)
 bool
 CS101_ASDU_addPayload(CS101_ASDU self, uint8_t* buffer, int size)
 {
+    if (buffer == NULL)
+        return false;
+
     if (self->payloadSize + self->asduHeaderLength + size <= 256) {
         memcpy(self->payload + self->payloadSize, buffer, size);
         self->payloadSize += size;
@@ -406,9 +432,8 @@ CS101_ASDU_getNumberOfElements(CS101_ASDU self)
 void
 CS101_ASDU_setNumberOfElements(CS101_ASDU self, int numberOfElements)
 {
-    uint8_t noe = ((uint8_t) numberOfElements) & 0x7f;
-
-    self->asdu[1] |= noe;
+    self->asdu[1] &= 0x80;
+    self->asdu[1] |= ((uint8_t) numberOfElements) & 0x7f;
 }
 
 InformationObject
@@ -1060,8 +1085,6 @@ CS101_ASDU_getElementEx(CS101_ASDU self, InformationObject io, int index)
         break;
 
     case M_EI_NA_1: /* 70 - End of Initialization */
-
-        elementSize = self->parameters->sizeOfIOA + 1;
 
         retVal = (InformationObject) EndOfInitialization_getFromBuffer((EndOfInitialization) io, self->parameters, self->payload, self->payloadSize,  0);
 

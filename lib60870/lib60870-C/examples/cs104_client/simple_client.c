@@ -33,6 +33,9 @@ connectionHandler (void* parameter, CS104_Connection connection, CS104_Connectio
     case CS104_CONNECTION_CLOSED:
         printf("Connection closed\n");
         break;
+    case CS104_CONNECTION_FAILED:
+        printf("Failed to connect\n");
+        break;
     case CS104_CONNECTION_STARTDT_CON_RECEIVED:
         printf("Received STARTDT_CON\n");
         break;
@@ -104,6 +107,8 @@ main(int argc, char** argv)
 {
     const char* ip = "localhost";
     uint16_t port = IEC_60870_5_104_DEFAULT_PORT;
+    const char* localIp = NULL;
+    int localPort = -1;
 
     if (argc > 1)
         ip = argv[1];
@@ -111,11 +116,24 @@ main(int argc, char** argv)
     if (argc > 2)
         port = atoi(argv[2]);
 
+    if (argc > 3)
+        localIp = argv[3];
+
+    if (argc > 4)
+        port = atoi(argv[4]);
+
     printf("Connecting to: %s:%i\n", ip, port);
     CS104_Connection con = CS104_Connection_create(ip, port);
 
+    CS101_AppLayerParameters alParams = CS104_Connection_getAppLayerParameters(con);
+    alParams->originatorAddress = 3;
+
     CS104_Connection_setConnectionHandler(con, connectionHandler, NULL);
     CS104_Connection_setASDUReceivedHandler(con, asduReceivedHandler, NULL);
+
+    /* optional bind to local IP address/interface */
+    if (localIp)
+        CS104_Connection_setLocalAddress(con, localIp, localPort);
 
     /* uncomment to log messages */
     //CS104_Connection_setRawMessageHandler(con, rawMessageHandler, NULL);

@@ -1,5 +1,5 @@
 /*
- *  Copyright 2016-2018 MZ Automation GmbH
+ *  Copyright 2016-2022 Michael Zillgith
  *
  *  This file is part of lib60870-C
  *
@@ -74,6 +74,19 @@ CS104_Connection_create(const char* hostname, int tcpPort);
 CS104_Connection
 CS104_Connection_createSecure(const char* hostname, int tcpPort, TLSConfiguration tlsConfig);
 
+
+/**
+ * \brief Set the local IP address and port to be used by the client
+ * 
+ * NOTE: This function is optional. When not used the OS decides what IP address and TCP port to use.
+ * 
+ * \param self CS104_Connection instance
+ * \param localIpAddress the local IP address or hostname as C string
+ * \param localPort the local TCP port to use. When < 1 the OS will chose the TCP port to use.
+ */
+void
+CS104_Connection_setLocalAddress(CS104_Connection self, const char* localIpAddress, int localPort);
+
 /**
  * \brief Set the CS104 specific APCI parameters.
  *
@@ -82,9 +95,10 @@ CS104_Connection_createSecure(const char* hostname, int tcpPort, TLSConfiguratio
  * the behavior is undefined.
  *
  * \param self CS104_Connection instance
+ * \param parameters the APCI layer parameters
  */
 void
-CS104_Connection_setAPCIParameters(CS104_Connection self, CS104_APCIParameters parameters);
+CS104_Connection_setAPCIParameters(CS104_Connection self, const CS104_APCIParameters parameters);
 
 /**
  * \brief Get the currently used CS104 specific APCI parameters
@@ -103,7 +117,7 @@ CS104_Connection_getAPCIParameters(CS104_Connection self);
  * \param parameters the application layer parameters
  */
 void
-CS104_Connection_setAppLayerParameters(CS104_Connection self, CS101_AppLayerParameters parameters);
+CS104_Connection_setAppLayerParameters(CS104_Connection self, const CS101_AppLayerParameters parameters);
 
 /**
  * \brief Return the currently used application layer parameter
@@ -119,6 +133,8 @@ CS104_Connection_getAppLayerParameters(CS104_Connection self);
 
 /**
  * \brief Sets the timeout for connecting to the server (in ms)
+ * 
+ * \deprecated Function has no effect! Set T0 parameter instead.
  *
  * \param self
  * \param millies timeout value in ms
@@ -294,16 +310,19 @@ CS104_Connection_sendASDU(CS104_Connection self, CS101_ASDU asdu);
 void
 CS104_Connection_setASDUReceivedHandler(CS104_Connection self, CS101_ASDUReceivedHandler handler, void* parameter);
 
-
 typedef enum {
     CS104_CONNECTION_OPENED = 0,
     CS104_CONNECTION_CLOSED = 1,
     CS104_CONNECTION_STARTDT_CON_RECEIVED = 2,
-    CS104_CONNECTION_STOPDT_CON_RECEIVED = 3
+    CS104_CONNECTION_STOPDT_CON_RECEIVED = 3,
+    CS104_CONNECTION_FAILED = 4
 } CS104_ConnectionEvent;
 
 /**
  * \brief Handler that is called when the connection is established or closed
+ * 
+ * \note Calling \ref CS104_Connection_destroy or \ref CS104_Connection_close inside
+ * of the callback causes a memory leak!
  *
  * \param parameter user provided parameter
  * \param connection the connection object

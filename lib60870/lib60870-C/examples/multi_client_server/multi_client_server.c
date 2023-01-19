@@ -4,7 +4,6 @@
 #include <string.h>
 #include <signal.h>
 
-#include "iec60870_slave.h"
 #include "cs104_slave.h"
 
 #include "hal_thread.h"
@@ -121,18 +120,25 @@ asduHandler(void* parameter, IMasterConnection connection, CS101_ASDU asdu)
         if  (CS101_ASDU_getCOT(asdu) == CS101_COT_ACTIVATION) {
             InformationObject io = CS101_ASDU_getElement(asdu, 0);
 
-            if (InformationObject_getObjectAddress(io) == 5000) {
-                SingleCommand sc = (SingleCommand) io;
+            if (io) {
 
-                printf("IOA: %i switch to %i\n", InformationObject_getObjectAddress(io),
-                        SingleCommand_getState(sc));
+                if (InformationObject_getObjectAddress(io) == 5000) {
+                    SingleCommand sc = (SingleCommand) io;
 
-                CS101_ASDU_setCOT(asdu, CS101_COT_ACTIVATION_CON);
+                    printf("IOA: %i switch to %i\n", InformationObject_getObjectAddress(io),
+                            SingleCommand_getState(sc));
+
+                    CS101_ASDU_setCOT(asdu, CS101_COT_ACTIVATION_CON);
+                }
+                else
+                    CS101_ASDU_setCOT(asdu, CS101_COT_UNKNOWN_IOA);
+
+                InformationObject_destroy(io);
             }
-            else
-                CS101_ASDU_setCOT(asdu, CS101_COT_UNKNOWN_IOA);
-
-            InformationObject_destroy(io);
+            else {
+                printf("ERROR: ASDU contains no information object!\n");
+                return true;
+            }
         }
         else
             CS101_ASDU_setCOT(asdu, CS101_COT_UNKNOWN_COT);
@@ -215,22 +221,26 @@ main(int argc, char** argv)
             printf("Connected clients: %i\n", openConnections);
         }
 
+        CS101_ASDU periodicAsdu = CS101_ASDU_create(appLayerParameters, false, CS101_COT_PERIODIC, 0, 1, false, false);
+
+        if (periodicAsdu) {
+            InformationObject io = (InformationObject) MeasuredValueScaled_create(NULL, 110, scaledValue, IEC60870_QUALITY_GOOD);
+
+            if (io) {
+                scaledValue++;
+
+                CS101_ASDU_addInformationObject(periodicAsdu, io);
+
+                InformationObject_destroy(io);
+
+                /* Add ASDU to slave event queue */
+                CS104_Slave_enqueueASDU(slave, periodicAsdu);
+            }
+
+            CS101_ASDU_destroy(periodicAsdu);
+        }
+
         Thread_sleep(1000);
-
-        CS101_ASDU newAsdu = CS101_ASDU_create(appLayerParameters, false, CS101_COT_PERIODIC, 0, 1, false, false);
-
-        InformationObject io = (InformationObject) MeasuredValueScaled_create(NULL, 110, scaledValue, IEC60870_QUALITY_GOOD);
-
-        scaledValue++;
-
-        CS101_ASDU_addInformationObject(newAsdu, io);
-
-        InformationObject_destroy(io);
-
-        /* Add ASDU to slave event queue */
-        CS104_Slave_enqueueASDU(slave, newAsdu);
-
-        CS101_ASDU_destroy(newAsdu);
     }
 
     CS104_Slave_stop(slave);
