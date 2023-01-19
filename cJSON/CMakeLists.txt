@@ -1,17 +1,16 @@
 set(CMAKE_LEGACY_CYGWIN_WIN32 0)
-cmake_minimum_required(VERSION 2.8.5)
+cmake_minimum_required(VERSION 3.0)
 
-project(cJSON C)
+project(cJSON
+    VERSION 1.7.15
+    LANGUAGES C)
+
+cmake_policy(SET CMP0054 NEW)  # set CMP0054 policy
 
 include(GNUInstallDirs)
 
-set(PROJECT_VERSION_MAJOR 1)
-set(PROJECT_VERSION_MINOR 7)
-set(PROJECT_VERSION_PATCH 14)
 set(CJSON_VERSION_SO 1)
 set(CJSON_UTILS_VERSION_SO 1)
-set(PROJECT_VERSION "${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH}")
-
 
 set(custom_compiler_flags)
 
@@ -122,6 +121,7 @@ set(SOURCES cJSON.c)
 option(BUILD_SHARED_AND_STATIC_LIBS "Build both shared and static libraries" Off)
 option(CJSON_OVERRIDE_BUILD_SHARED_LIBS "Override BUILD_SHARED_LIBS with CJSON_BUILD_SHARED_LIBS" OFF)
 option(CJSON_BUILD_SHARED_LIBS "Overrides BUILD_SHARED_LIBS if CJSON_OVERRIDE_BUILD_SHARED_LIBS is enabled" ON)
+option(ENABLE_CJSON_VERSION_SO "Enables cJSON so version" ON)
 
 if ((CJSON_OVERRIDE_BUILD_SHARED_LIBS AND CJSON_BUILD_SHARED_LIBS) OR ((NOT CJSON_OVERRIDE_BUILD_SHARED_LIBS) AND BUILD_SHARED_LIBS))
     set(CJSON_LIBRARY_TYPE SHARED)
@@ -156,17 +156,23 @@ install(TARGETS "${CJSON_LIB}"
     INCLUDES DESTINATION "${CMAKE_INSTALL_FULL_INCLUDEDIR}"
 )
 if (BUILD_SHARED_AND_STATIC_LIBS)
-    install(TARGETS "${CJSON_LIB}-static" DESTINATION "${CMAKE_INSTALL_FULL_LIBDIR}")
+    install(TARGETS "${CJSON_LIB}-static"
+    EXPORT "${CJSON_LIB}" 
+    ARCHIVE DESTINATION "${CMAKE_INSTALL_FULL_LIBDIR}"
+    INCLUDES DESTINATION "${CMAKE_INSTALL_FULL_INCLUDEDIR}"
+)
 endif()
 if(ENABLE_TARGET_EXPORT)
     # export library information for CMake projects
     install(EXPORT "${CJSON_LIB}" DESTINATION "${CMAKE_INSTALL_FULL_LIBDIR}/cmake/cJSON")
 endif()
 
-set_target_properties("${CJSON_LIB}"
-    PROPERTIES
-        SOVERSION "${CJSON_VERSION_SO}"
-        VERSION "${PROJECT_VERSION}")
+if(ENABLE_CJSON_VERSION_SO)
+    set_target_properties("${CJSON_LIB}"
+        PROPERTIES
+            SOVERSION "${CJSON_VERSION_SO}"
+            VERSION "${PROJECT_VERSION}")
+endif()
 
 #cJSON_Utils
 option(ENABLE_CJSON_UTILS "Enable building the cJSON_Utils library." OFF)
@@ -199,7 +205,11 @@ if(ENABLE_CJSON_UTILS)
         INCLUDES DESTINATION "${CMAKE_INSTALL_FULL_INCLUDEDIR}"
     )
     if (BUILD_SHARED_AND_STATIC_LIBS)
-        install(TARGETS "${CJSON_UTILS_LIB}-static" DESTINATION "${CMAKE_INSTALL_FULL_LIBDIR}")
+        install(TARGETS "${CJSON_UTILS_LIB}-static" 
+        EXPORT "${CJSON_UTILS_LIB}" 
+        ARCHIVE DESTINATION "${CMAKE_INSTALL_FULL_LIBDIR}"
+        INCLUDES DESTINATION "${CMAKE_INSTALL_FULL_INCLUDEDIR}"
+        )
     endif()
     install(FILES cJSON_Utils.h DESTINATION "${CMAKE_INSTALL_FULL_INCLUDEDIR}/cjson")
     install (FILES "${CMAKE_CURRENT_BINARY_DIR}/libcjson_utils.pc" DESTINATION "${CMAKE_INSTALL_FULL_LIBDIR}/pkgconfig")
@@ -208,10 +218,12 @@ if(ENABLE_CJSON_UTILS)
       install(EXPORT "${CJSON_UTILS_LIB}" DESTINATION "${CMAKE_INSTALL_FULL_LIBDIR}/cmake/cJSON")
     endif()
 
-    set_target_properties("${CJSON_UTILS_LIB}"
-        PROPERTIES
-            SOVERSION "${CJSON_UTILS_VERSION_SO}"
-            VERSION "${PROJECT_VERSION}")
+    if(ENABLE_CJSON_VERSION_SO)
+        set_target_properties("${CJSON_UTILS_LIB}"
+            PROPERTIES
+                SOVERSION "${CJSON_UTILS_VERSION_SO}"
+                VERSION "${PROJECT_VERSION}")
+    endif()
 endif()
 
 # create the other package config files
@@ -255,7 +267,11 @@ if(ENABLE_CJSON_TEST)
 endif()
 
 #Create the uninstall target
-add_custom_target(uninstall "${CMAKE_COMMAND}" -P "${PROJECT_SOURCE_DIR}/library_config/uninstall.cmake")
+option(ENABLE_CJSON_UNINSTALL "Enable creating uninstall target" ON)
+if(ENABLE_CJSON_UNINSTALL)
+  add_custom_target(uninstall "${CMAKE_COMMAND}" -P
+    "${PROJECT_SOURCE_DIR}/library_config/uninstall.cmake")
+endif()
 
 # Enable the use of locales
 option(ENABLE_LOCALES "Enable the use of locales" ON)

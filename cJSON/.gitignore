@@ -6,7 +6,7 @@ test
 *.swp
 *.patch
 tags
-*.dylib
+*.dylib*
 build/
 cJSON_test
 cJSON_test_utils
@@ -16,3 +16,5 @@ libcjson_utils.so.*
 .vscode
 .idea
 cmake-build-debug
+*.lst
+*.lss

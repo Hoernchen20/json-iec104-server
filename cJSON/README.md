@@ -118,6 +118,7 @@ You can change the build process with a list of different options that you can p
 * `-DCMAKE_INSTALL_PREFIX=/usr`: Set a prefix for the installation.
 * `-DENABLE_LOCALES=On`: Enable the usage of localeconv method. ( on by default )
 * `-DCJSON_OVERRIDE_BUILD_SHARED_LIBS=On`: Enable overriding the value of `BUILD_SHARED_LIBS` with `-DCJSON_BUILD_SHARED_LIBS`.
+* `-DENABLE_CJSON_VERSION_SO`: Enable cJSON so version. ( on by default )
 
 If you are packaging cJSON for a distribution of Linux, you would probably take these steps for example:
 ```
@@ -406,7 +407,7 @@ end:
 }
 ```
 
-Alternatively we can use the `cJSON_Add...ToObject` helper functions to make our lifes a little easier:
+Alternatively we can use the `cJSON_Add...ToObject` helper functions to make our lives a little easier:
 
 ```c
 //NOTE: Returns a heap allocated string, you are required to free it after use.
