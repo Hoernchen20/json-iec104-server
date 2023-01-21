@@ -1,7 +1,7 @@
 LIB60870_HOME=lib60870/lib60870-C
 
 PROJECT_BINARY_NAME = json-iec104-server
-PROJECT_SOURCES = json-iec104-server.c cJSON/cJSON.c
+PROJECT_SOURCES = *.c cJSON/cJSON.c
 
 include $(LIB60870_HOME)/make/target_system.mk
 include $(LIB60870_HOME)/make/stack_includes.mk
